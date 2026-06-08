@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.scrollmark/socialgpt",
+  "title": "SocialGPT",
+  "description": "Social media analytics, video analysis, and competitor intel for any MCP-compatible AI agent.",
+  "version": "0.1.0",
+  "websiteUrl": "https://gpt.social/integrations/mcp",
+  "repository": {
+    "url": "https://github.com/scrollmark/socialgpt-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.gpt.social/mcp"
+    }
+  ]
+}

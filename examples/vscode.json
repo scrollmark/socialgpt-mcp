@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "socialgpt": {
+      "type": "http",
+      "url": "https://mcp.gpt.social/mcp"
+    }
+  }
+}
