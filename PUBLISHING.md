@@ -1,6 +1,6 @@
 # Publishing & listing the SocialGPT MCP server
 
-This repo is the public front door for a **remote** MCP server (`https://mcp.gpt.social/mcp`). Getting it listed has two independent tracks, and you've chosen to do **both**:
+This repo is the public front door for a **remote** MCP server (`https://mcp.gpt.social/mcp`). Getting it listed has two independent tracks, and this repo is set up for **both**:
 
 1. **The official MCP registry** (`registry.modelcontextprotocol.io`) — the canonical, machine-readable registry backed by Anthropic/GitHub/Microsoft. Driven by [`server.json`](./server.json).
 2. **Third-party directories** (mcpservers.com, mcp.so, glama.ai, PulseMCP, …) — human-browsable catalogs that index public GitHub repos and/or the official registry.
@@ -37,7 +37,7 @@ brew install mcp-publisher
 #   curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher && sudo mv mcp-publisher /usr/local/bin/
 
 # 2. From the repo root (where server.json lives), authenticate with GitHub.
-#    Your GitHub account (ennsharma) must be a member/owner of the scrollmark org
+#    The account you log in with must be a member/owner of the scrollmark org
 #    so it can claim the io.github.scrollmark namespace.
 mcp-publisher login github
 
@@ -45,7 +45,7 @@ mcp-publisher login github
 mcp-publisher publish
 ```
 
-`mcp-publisher` reads `server.json` from the current directory. (`mcp-publisher init` can regenerate/validate it, but ours is already written and schema-valid — don't let it overwrite the curated description.)
+`mcp-publisher` reads `server.json` from the current directory. (`mcp-publisher init` can regenerate/validate it, but the committed file is already schema-valid — don't let it overwrite the curated description.)
 
 ### Option B — automated via GitHub Actions (recommended for an org repo)
 
