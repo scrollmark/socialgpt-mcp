@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="./assets/logo.png" width="96" alt="SocialGPT logo" />
+
 # SocialGPT MCP Server
 
 **Your social data, inside every AI tool.**
@@ -116,6 +118,35 @@ Add to `~/.codex/config.toml` (or `.codex/config.toml` for a single project):
 ```toml
 [mcp_servers.socialgpt]
 url = "https://mcp.gpt.social/mcp"
+```
+
+### Cline
+
+**MCP Servers** icon → **Remote Servers** → add the server URL, or edit `cline_mcp_settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "socialgpt": {
+      "type": "streamableHttp",
+      "url": "https://mcp.gpt.social/mcp"
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "socialgpt": {
+      "serverUrl": "https://mcp.gpt.social/mcp"
+    }
+  }
+}
 ```
 
 ### AntiGravity

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "socialgpt": {
+      "type": "streamableHttp",
+      "url": "https://mcp.gpt.social/mcp"
+    }
+  }
+}
