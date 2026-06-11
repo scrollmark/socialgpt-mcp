@@ -254,6 +254,8 @@ Read access is live today. We're building **write** capabilities so your agent c
 
 ## Support & links
 
+⭐ **If SocialGPT MCP is useful to you, [star this repo](https://github.com/scrollmark/socialgpt-mcp)** — it helps other creators discover it.
+
 - **Product:** [gpt.social](https://gpt.social) · [MCP integration page](https://gpt.social/integrations/mcp)
 - **Sign up:** [app.gpt.social/signup](https://app.gpt.social/signup)
 - **Connect accounts:** [app.gpt.social/account](https://app.gpt.social/account)
