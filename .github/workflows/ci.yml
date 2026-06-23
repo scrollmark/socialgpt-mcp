@@ -1,0 +1,23 @@
+name: skills-ci
+
+# Runs on every PR (no path filter, so a required check never gets stuck
+# "expected" on PRs that don't touch skills/) and on pushes to main.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  skills-ci:
+    name: skills-ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Vendored libs are in sync
+        run: python skills/build.py --check
+      - name: Smoke-test every skill
+        run: python skills/smoke_test.py

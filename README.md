@@ -254,6 +254,24 @@ The server also ships **prompts** — guided workflows that chain the tools abov
 
 ---
 
+## Skills
+
+Where prompts *ask* the model to do an analysis, **[skills](./skills)** ship the
+analysis itself — a real script the agent runs on your MCP data, returning a
+styled report. They install on Claude.ai (upload a zip) and Claude Code (drop in
+a folder), and run the same SocialGPT MCP tools under the hood.
+
+| Skill | Answers | Tools used |
+|-------|---------|------------|
+| [`content-performance-audit`](./skills/content-performance-audit) | *"What actually drives my views?"* — a statistical audit of your posts (length, timing, platform, format) with real significance tests. | `list_videos` |
+| [`competitor-gap-analysis`](./skills/competitor-gap-analysis) | *"Where are competitors winning that I'm silent?"* — content gaps, owned territory, format gaps vs. 1–3 rivals. | `list_videos`, `list_creator_videos` |
+| [`hook-retention-teardown`](./skills/hook-retention-teardown) | *"What do my best hooks do that my flops don't?"* — pacing and language patterns separating winners from losers. | `list_videos`, `get_video_analysis` |
+
+See **[`skills/`](./skills)** for install instructions, the build script, and the
+methodology behind each one. New skills land here as the tool surface grows.
+
+---
+
 ## Authentication & scopes
 
 The SocialGPT MCP server is an OAuth 2.1 **resource server**. Your client performs an OAuth 2.1 + PKCE flow against your SocialGPT account; the server validates the bearer token on every request. No API keys are ever copied around, and you can revoke access at any time from your SocialGPT settings.
