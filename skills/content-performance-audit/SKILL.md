@@ -77,3 +77,6 @@ translates the top significant factors into plain-English actions. See
   test next*, not guarantees. The report says this explicitly.
 - **Re-runnable.** Suggest the user re-run monthly; drivers shift as the account
   grows.
+- **Part of a larger loop.** This is the "find your drivers" stage of the
+  [**going-viral**](../going-viral) strategy loop — run it there to turn the
+  drivers it surfaces into your next experiment.

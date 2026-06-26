@@ -116,3 +116,6 @@ patterns to copy. See `references/methodology.md` for the exact definitions.
   works. Treat each pattern as a lead to A/B test.
 - **Re-runnable.** Suggest re-running as the account grows and the back catalog
   of winners and flops changes.
+- **Part of a larger loop.** This is the hook-study stage of the
+  [**going-viral**](../going-viral) strategy loop — pair it with the audit and
+  gap skills for the full research-to-review cycle.

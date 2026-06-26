@@ -13,6 +13,16 @@ for that vendoring plus packaging.
 
 A built zip contains a top-level ``<skill>/`` folder with ``SKILL.md`` at its
 root — the shape Claude.ai's "upload skill" expects.
+
+Two classes of skill are supported:
+
+* **script-based** — has a ``scripts/`` directory with an ``analyze.py``. The
+  shared lib is vendored into it and it ships a deterministic analysis. (The
+  three analysis skills.)
+* **orchestrator** — has **no** ``scripts/`` directory; it ships a ``SKILL.md``
+  plus a ``references/`` knowledge base and conducts the other skills + MCP tools
+  rather than computing anything itself. Nothing is vendored into it. (The
+  ``going-viral`` skill.)
 """
 
 from __future__ import annotations
@@ -37,6 +47,12 @@ def skill_dirs() -> list[Path]:
     )
 
 
+def is_script_based(skill: Path) -> bool:
+    """A skill is script-based if it has a ``scripts/`` directory; otherwise it is
+    an orchestrator skill (SKILL.md + references/, no vendored lib)."""
+    return (skill / "scripts").is_dir()
+
+
 def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -57,8 +73,14 @@ def validate_skill(skill: Path) -> list[str]:
             # name should match the folder; allow folded scalars but warn otherwise
             if f"name: {skill.name}" not in front:
                 problems.append(f"SKILL.md `name` should equal folder name '{skill.name}'")
-    if not (skill / "scripts" / "analyze.py").exists():
-        problems.append("missing scripts/analyze.py")
+    if is_script_based(skill):
+        if not (skill / "scripts" / "analyze.py").exists():
+            problems.append("missing scripts/analyze.py")
+    else:
+        # orchestrator skill: must ship a non-empty references/ instead of a script
+        refs = skill / "references"
+        if not refs.is_dir() or not any(refs.glob("*.md")):
+            problems.append("orchestrator skill (no scripts/) must ship a non-empty references/")
     return problems
 
 
@@ -68,6 +90,8 @@ def sync_vendored(check: bool) -> bool:
     shared_hash = _digest(SHARED_LIB)
     ok = True
     for skill in skill_dirs():
+        if not is_script_based(skill):
+            continue  # orchestrator skill — nothing to vendor
         target = skill / "scripts" / VENDOR_NAME
         target.parent.mkdir(parents=True, exist_ok=True)
         if check:

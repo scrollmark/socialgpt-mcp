@@ -257,12 +257,14 @@ The server also ships **prompts** — guided workflows that chain the tools abov
 ## Skills
 
 Where prompts *ask* the model to do an analysis, **[skills](./skills)** ship the
-analysis itself — a real script the agent runs on your MCP data, returning a
-styled report. They install on Claude.ai (upload a zip) and Claude Code (drop in
-a folder), and run the same SocialGPT MCP tools under the hood.
+work itself. Most are a real script the agent runs on your MCP data, returning a
+styled report; **going-viral** is the strategy loop that conducts the others.
+They install on Claude.ai (upload a zip) and Claude Code (drop in a folder), and
+run the same SocialGPT MCP tools under the hood.
 
 | Skill | Answers | Tools used |
 |-------|---------|------------|
+| [`going-viral`](./skills/going-viral) | *"How do I actually go viral?"* — the end-to-end loop: research outliers, find your own drivers, study winning hooks, ship one experiment, review, repeat. Grounds each step in your data and routes into the three analysis skills. | orchestrates — `list_videos`, `list_creator_videos`, `get_video_analysis`, `get_content_profile`, `get_growth_summary`, … |
 | [`content-performance-audit`](./skills/content-performance-audit) | *"What actually drives my views?"* — a statistical audit of your posts (length, timing, platform, format) with real significance tests. | `list_videos` |
 | [`competitor-gap-analysis`](./skills/competitor-gap-analysis) | *"Where are competitors winning that I'm silent?"* — content gaps, owned territory, format gaps vs. 1–3 rivals. | `list_videos`, `list_creator_videos` |
 | [`hook-retention-teardown`](./skills/hook-retention-teardown) | *"What do my best hooks do that my flops don't?"* — pacing and language patterns separating winners from losers. | `list_videos`, `get_video_analysis` |

@@ -110,3 +110,6 @@ computed, plus the caveats.
   work for your audience. The report says this explicitly.
 - **Re-runnable.** Suggest re-running as you ship against the gaps; the owned/gap
   split shifts as both catalogs grow.
+- **Part of a larger loop.** This is the research stage of the
+  [**going-viral**](../going-viral) strategy loop — the gaps it finds feed
+  straight into data-driven ideation.

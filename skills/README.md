@@ -16,9 +16,9 @@ and runs a deterministic analysis with a shareable report.
 An [Agent Skill](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 is a folder with a `SKILL.md` (instructions) plus optional scripts the agent can
 run. These skills **pair with the SocialGPT MCP server**: the MCP provides your
-data, the skill provides the analysis a prompt can't do reliably on its own — a
-real statistical model, a deterministic report — and hands you back a styled HTML
-summary.
+data, the skill provides what a prompt can't do reliably on its own — a real
+statistical model, a deterministic report, or the strategy loop that ties them
+together — and hands you back a styled HTML summary or a grounded plan.
 
 Same format runs on **Claude.ai** and **Claude Code** (and any agent that
 supports Agent Skills). Author once, install anywhere.
@@ -32,13 +32,16 @@ supports Agent Skills). Author once, install anywhere.
 
 | Skill | Answers | MCP tools it uses |
 |-------|---------|-------------------|
+| [**going-viral**](./going-viral) | *"How do I actually go viral?"* — the end-to-end loop that conducts the three skills below: research outliers, find your own drivers, study winning hooks, ship one experiment, review, repeat. | orchestrates — `list_videos`, `list_creator_videos`, `get_video_analysis`, `get_content_profile`, `get_growth_summary`, … |
 | [**content-performance-audit**](./content-performance-audit) | *"What actually drives my views?"* — a statistical audit of your own posts (length, timing, platform, format) with real significance tests. | `list_videos` |
 | [**competitor-gap-analysis**](./competitor-gap-analysis) | *"Where are competitors winning that I'm silent?"* — content gaps, owned territory, and format gaps vs. 1–3 rivals. | `list_videos`, `list_creator_videos` |
 | [**hook-retention-teardown**](./hook-retention-teardown) | *"What do my best hooks do that my flops don't?"* — pacing and language patterns separating your winners from losers. | `list_videos`, `get_video_analysis` |
 
-Each skill is a self-contained folder: a `SKILL.md`, a `scripts/analyze.py`
-(Python **standard library only** — no pip install), and a
-`references/methodology.md`.
+The three analysis skills are each a self-contained folder: a `SKILL.md`, a
+`scripts/analyze.py` (Python **standard library only** — no pip install), and a
+`references/methodology.md`. **going-viral** is an *orchestrator* skill — a
+`SKILL.md` plus an 18-file `references/` playbook, no script — that conducts the
+analysis skills and the MCP tools through the full viral loop.
 
 ## Install
 
