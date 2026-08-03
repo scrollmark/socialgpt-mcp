@@ -30,7 +30,7 @@ https://mcp.gpt.social/mcp
 
 - **Transport:** Streamable HTTP
 - **Auth:** OAuth 2.1 with PKCE — sign in once with your SocialGPT account, revoke any time
-- **Access:** Read-only analytics by default; an optional scope lets agents pull new content into your library for analysis
+- **Access:** Read-only analytics by default. Two optional scopes go further — one lets agents pull new content into your library for analysis, the other lets them publish to your connected accounts.
 
 > New to SocialGPT? [Create a free account](https://app.gpt.social/signup), then [connect a social account](https://app.gpt.social/account) to unlock analysis of your own content. Public/competitor analysis works without connecting anything.
 
@@ -176,6 +176,7 @@ Any client that supports the Model Context Protocol can connect using the server
 | **Your content** | Full visibility into your own posts and performance — list and search your analyzed videos, deep-dive analysis with hooks, themes, and transcripts, and track views, engagement, and growth over time across TikTok, Instagram, and YouTube. |
 | **Competitor intel** | Reverse-engineer what works in any niche — look up any public creator's profile and content DNA, browse their top and recent videos, find videos similar to yours, and benchmark against comparable creators. |
 | **Content profile** | Your content DNA, always up to date — synthesized pillars and recurring themes, a voice and tone profile derived from your actual content, and a prescriptive playbook that evolves as you create. |
+| **Publishing** | Post to your connected TikTok, Instagram, and YouTube accounts without leaving your agent — with a required confirmation step before anything goes live. Opt-in via the `content:publish` scope. |
 | **Guided workflows** | Pre-built prompts that chain tools together for a full performance audit, head-to-head benchmarking, or reverse-engineering a creator's winning formula. |
 
 ### Just ask
@@ -189,12 +190,14 @@ Once connected, talk to your agent like a teammate:
 > *"Analyze my latest Instagram reel and suggest better hooks."*
 >
 > *"Compare my engagement rate to similar creators on YouTube."*
+>
+> *"Post this video to my TikTok as a draft."*
 
 ---
 
 ## Tools
 
-The server exposes a curated, mostly read-only surface. The **Scope** column shows which OAuth scope each tool needs (see [Authentication & scopes](#authentication--scopes)).
+The server exposes a curated surface — read-only unless you grant a write scope. The **Scope** column shows which OAuth scope each tool needs (see [Authentication & scopes](#authentication--scopes)).
 
 #### Your videos & content
 
@@ -215,6 +218,9 @@ The server exposes a curated, mostly read-only surface. The **Scope** column sho
 | `list_accounts` | List your connected social accounts. | `analysis:read` |
 | `get_account` | Get one connected account by id. | `analysis:read` |
 | `get_account_metrics` | Views / engagement as a time series over a trailing window (up to 365 days), per account or aggregated. | `analysis:read` |
+| `get_follower_history` | Audience growth over time — follower / following / media counts as a true time series (up to 365 days). | `analysis:read` |
+| `get_growth_summary` | Computed growth deltas and momentum over a window — the "am I growing?" answer in one call. | `analysis:read` |
+| `get_post_metrics_history` | One post's trajectory over time — how a single video's numbers moved after publishing. | `analysis:read` · `analysis:read:public` |
 
 #### Competitor & creator discovery
 
@@ -232,12 +238,35 @@ The server exposes a curated, mostly read-only surface. The **Scope** column sho
 | `analyze_creator` | Analyze a public creator's recent posts (async — returns a `job_id` to poll). | `content:ingest` |
 | `get_analysis_status` | Check the status of an `analyze_creator` job. | `content:ingest` |
 
+#### Publish
+
+Opt-in — these are the only tools that act on your accounts, and they require the `content:publish` scope. Nothing publishes without your explicit confirmation.
+
+| Tool | Description | Scope |
+|------|-------------|-------|
+| `get_publish_options` | Live TikTok publish options — privacy levels, interaction settings, whether posting is possible right now. **Required before posting to TikTok.** | `content:publish` |
+| `publish_post` | Publish to a connected TikTok, Instagram, or YouTube account. TikTok supports draft or direct; Instagram publishes reels and carousels immediately; YouTube publishes a video immediately. | `content:publish` |
+| `get_publish_status` | Poll a publish job by `job_id`. | `content:publish` |
+| `get_upload_link` | Get a page where you can upload a local video file that has no public URL. | `content:publish` |
+| `list_uploads` | List drafts you've uploaded, so a `draft_id` can be handed to `publish_post`. | `content:publish` |
+
+Publishing a local file is a three-step handoff: `get_upload_link` → you upload in the browser → `list_uploads` to find the draft → `publish_post(draft_id=...)`.
+
 #### Meta
 
 | Tool | Description | Scope |
 |------|-------------|-------|
 | `server_info` | Basic info about the server and the scopes it supports. | — |
 | `whoami` | The authenticated caller — user id and granted scopes. | — |
+
+### Conventions
+
+A few behaviours that apply across the surface:
+
+- **Account groups (brands / workspaces).** Accounts are organized into groups. `list_accounts` returns each account's group plus a `groups` list; pass a `group_id` to `list_accounts`, `get_content_profile`, `get_publish_options`, or `publish_post` to scope to one brand. Omit it for the default group.
+- **Pagination.** `list_videos`, `search_videos`, and `list_creator_videos` return a `next_cursor` when more results exist — pass it back as `cursor` with the same filters. No `next_cursor` means you have everything.
+- **Time-series granularity.** `get_account_metrics`, `get_follower_history`, and `get_post_metrics_history` take a `granularity` of `daily` (default), `weekly`, or `raw`.
+- **Async analysis.** Deep video analysis runs in the background (~30–60s). `get_video_analysis` returns `{"status": "pending", "retry_after_seconds": N}` until it's ready — that's expected, not an error. Wait and call again.
 
 ---
 
@@ -251,6 +280,7 @@ The server also ships **prompts** — guided workflows that chain the tools abov
 | `compare_to_similar` | Benchmark one of your videos head-to-head against similar competitor videos and get specific changes to test. |
 | `what_works_in_niche` | Reverse-engineer a creator's winning formula — hooks, formats, topics, cadence — into a repeatable playbook. |
 | `connect_account` | Guided setup for linking a social account to unlock analysis of your own content. |
+| `post_from_my_device` | Walk through publishing a video that lives on your device — upload, pick options, confirm, post. Needs `content:publish`. |
 
 ---
 
@@ -278,13 +308,16 @@ methodology behind each one. New skills land here as the tool surface grows.
 
 The SocialGPT MCP server is an OAuth 2.1 **resource server**. Your client performs an OAuth 2.1 + PKCE flow against your SocialGPT account; the server validates the bearer token on every request. No API keys are ever copied around, and you can revoke access at any time from your SocialGPT settings.
 
-Access is governed by three scopes:
+Access is governed by four scopes. The two read scopes are granted by default; the two write scopes are opt-in — a client has to ask for them explicitly, and you have to approve them.
 
-| Scope | Grants |
-|-------|--------|
-| `analysis:read` | Read **your own** content, metrics, connected accounts, and content profile. |
-| `analysis:read:public` | Read **public/competitor** creators and their analysis. |
-| `content:ingest` | Trigger analysis of new posts/creators — pulls content **into your library** for analysis. This is the only non-read scope; it does **not** post or publish anything on your behalf. |
+| Scope | Default | Grants |
+|-------|---------|--------|
+| `analysis:read` | ✅ | Read **your own** content, metrics, connected accounts, and content profile. |
+| `analysis:read:public` | ✅ | Read **public/competitor** creators and their analysis. |
+| `content:ingest` | opt-in | Trigger analysis of new posts/creators — pulls content **into your library** for analysis. It does **not** post or publish anything on your behalf. |
+| `content:publish` | opt-in | Publish to your connected TikTok / Instagram / YouTube accounts. The only scope that puts content in front of your audience — `publish_post` additionally requires an explicit confirmation flag, so an agent cannot post without you saying yes. |
+
+Clients can also request `offline_access` for a refresh token, so you don't re-authenticate every hour.
 
 Until you [connect a social account](https://app.gpt.social/account), only public/competitor analysis is available. Newly connected accounts appear automatically on the same token — no need to re-authenticate.
 
@@ -292,12 +325,11 @@ Until you [connect a social account](https://app.gpt.social/account), only publi
 
 ## Roadmap
 
-Read access is live today. We're building **write** capabilities so your agent can act, not just analyze — all over the same MCP connection:
+Read access and publishing are live today. We're building the rest of the **write** surface so your agent can do more than analyze and post — all over the same MCP connection:
 
-- **Publish content** — post directly to TikTok, Instagram, and YouTube from any AI agent
 - **Schedule posts** — queue content for optimal posting times
 - **Generate scripts** — full video scripts grounded in your analytics and style
-- **Build carousels** — design and publish carousel posts powered by your content DNA
+- **Design carousels** — generate carousel posts from your content DNA (publishing an existing carousel already works)
 - **Manage comments** — read, reply to, and moderate comments across platforms
 - **A/B test hooks** — run experiments on hooks and captions
 
